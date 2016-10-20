@@ -15,8 +15,6 @@ object SideAffectingActor {
   def props = Props(new SideAffectingActor)
 
   case class Greeting(message: String)
-
-
 }
 
 class SideAffectingActorWithListener(listener: Option[ActorRef]) extends ActorWithLogging {
