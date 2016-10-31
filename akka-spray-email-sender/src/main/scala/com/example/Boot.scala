@@ -13,7 +13,6 @@ object Boot extends App {
   implicit val system = ActorSystem("email-sender-system")
 
   // create and start our service actor
-  val service = system.actorOf(Props[MyServiceActor], "demo-service")
   val emailService = system.actorOf(Props[EmailActor], "email-service")
 
   implicit val timeout = Timeout(5.seconds)

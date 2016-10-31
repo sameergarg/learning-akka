@@ -4,10 +4,10 @@ import akka.actor.Actor.Receive
 import akka.actor.{Actor, ActorRef, ActorRefFactory, Props}
 import courier.{Envelope, Mailer, Multipart, Text}
 import spray.http.MediaTypes._
-import spray.routing.HttpService§
+import spray.routing.HttpService
 import spray.httpx.SprayJsonSupport._
 
-class EmailActor extends Actor with EmailService {
+class EmailActor extends Actor with EmailHttpService {
 
   override def actorRefFactory: ActorRefFactory = context
 
@@ -18,32 +18,33 @@ class EmailActor extends Actor with EmailService {
   override def receive: Receive = runRoute(emailRoute(emailSender))
 }
 
-object EmailActor {
-
-
-}
-
-class EmailSenderActor extends Actor {
+trait Mail {
   import courier._, Defaults._
 
-  val mailer = Mailer("localhost", 1025)
+  val mailer: Mailer = Mailer("localhost", 1025)
     //run mail catcher in background to test it or use details of your personal smtp server
     .auth(true)
     .as("you@gmail.com", "p@$$w3rd")
     .startTtls(true)()
 
+  def send(emailRequest: EmailRequest) =
+    mailer(Envelope.from("you" `@` "gmail.com")
+      .to("mom" `@` "gmail.com")
+      .cc("dad" `@` "gmail.com")
+      .subject("miss you")
+      .content(Text("hi mom"))).onSuccess {
+      case _ => println("message delivered")
+    }
+}
+
+class EmailSenderActor extends Actor with Mail {
+
+
   override def receive: Receive = {
     case emailRequest: EmailRequest =>
       println(s"Email request received from ${emailRequest.from}")
-      mailer(Envelope.from("you" `@` "gmail.com")
-        .to("mom" `@` "gmail.com")
-        .cc("dad" `@` "gmail.com")
-        .subject("miss you")
-        .content(Text("hi mom"))).onSuccess {
-        case _ => println("message delivered")
-      }
+      send(emailRequest)
   }
-
 
 }
 
@@ -52,7 +53,7 @@ object EmailSenderActor {
 
 }
 
-trait EmailService extends HttpService with Unmarshallers {
+trait EmailHttpService extends HttpService with Unmarshallers {
 
   def emailRoute(emailSender: ActorRef) = path("email"){
     post{
