@@ -1,4 +1,4 @@
-package learningakka.sendingactor
+package learningakka
 
 /**
   *
