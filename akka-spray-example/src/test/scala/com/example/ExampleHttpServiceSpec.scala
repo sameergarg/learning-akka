@@ -9,7 +9,7 @@ class ExampleHttpServiceSpec extends Specification with Specs2RouteTest with Exa
   def actorRefFactory = system
 
 
-  "EmailHttpService" should {
+  "Http Service" should {
 
     "return a greeting for GET requests to the root path" in {
       Get("/") ~> httpRoute() ~> check {

@@ -13,9 +13,9 @@ object Boot extends App {
   implicit val system = ActorSystem("akka-spray-example-system")
 
   // create and start our service actor
-  val emailService = system.actorOf(Props[HttpActor], "email-service")
+  val httpService = system.actorOf(Props[HttpActor], "http-actor")
 
   implicit val timeout = Timeout(5.seconds)
   // start a new HTTP server on port 8080 with our service actor as the handler
-  IO(Http) ? Http.Bind(emailService, interface = "localhost", port = 8085)
+  IO(Http) ? Http.Bind(httpService, interface = "localhost", port = 8085)
 }
